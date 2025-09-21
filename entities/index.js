@@ -21,7 +21,7 @@ export default restart => {
     //retorno todos oselementos q vc vai usar
         physics: { engine, world },
 
-        Bird: Bird(world, 'green', { x: 50, y: 100 }, { height: 40, width: 40 }),
+        Bird: Bird(world, 'green', { x: 50, y: 600 }, { height: 80, width: 40 }),
 
     }
 }
