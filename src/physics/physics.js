@@ -14,7 +14,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
              // 2. Quando o jogador toca, aplica uma velocidade para cima ou a frente do pássaro
             Matter.Body.setVelocity(entities.Bird.body, {
             x: 0,
-            y: -8
+            y: -3
         })
     })
  // 3. Atualiza o motor de física a cada frame
