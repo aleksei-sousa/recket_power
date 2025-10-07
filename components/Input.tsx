@@ -1,32 +1,46 @@
-import React from "react";
+import React, { useRef } from "react";
 import { View, PanResponder, StyleSheet } from "react-native";
 
-/**
- * Joystick vertical simples
- * @param {function} onMove - Recebe um valor y entre -1 (cima) e 1 (baixo)
- * @param {function} onRelease - Chamado quando o dedo solta o joystick
- */
 export default function JoystickVertical({ onMove, onRelease, style }) {
-  let startY = 0;
+  const activeFinger = useRef(null);
+  const startY = useRef(0);
 
   const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-
-    onPanResponderGrant: (evt, gestureState) => {
-      startY = gestureState.y0;
+    onStartShouldSetPanResponder: (evt) => {
+      const { locationX, locationY, identifier } = evt.nativeEvent;
+      // só ativa se o toque começou dentro da área do joystick
+      if (locationX >= 0 && locationX <= 80 && locationY >= 0 && locationY <= 80) {
+        activeFinger.current = identifier;
+        startY.current = evt.nativeEvent.pageY;
+        return true;
+      }
+      return false;
     },
 
-    onPanResponderMove: (evt, gestureState) => {
-      const dy = gestureState.moveY - startY;
+    onPanResponderMove: (evt) => {
+      const touch = evt.nativeEvent.touches.find(
+        (t) => t.identifier === activeFinger.current
+      );
+      if (!touch) return;
+
+      const dy = touch.pageY - startY.current;
       let value = dy / 50; // sensibilidade
       if (value > 1) value = 1;
       if (value < -1) value = -1;
+
       onMove && onMove(value);
     },
 
-    onPanResponderRelease: () => {
+    onPanResponderRelease: (evt) => {
+      if (evt.nativeEvent.identifier === activeFinger.current) {
+        onRelease && onRelease();
+        activeFinger.current = null;
+      }
+    },
+
+    onPanResponderTerminate: () => {
       onRelease && onRelease();
+      activeFinger.current = null;
     },
   });
 

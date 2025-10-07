@@ -19,19 +19,19 @@ export default restart => {
     let world = engine.world
 
     world.gravity.y = 0;
-    world.gravity.x = 0;
+    world.gravity.x = -.6;
 
     return {
     //retorno todos oselementos q vc vai usar
         physics: { engine, world },
 
-        Bird: Bird(world, 'green', { x: 50, y: 600 }, { height: 80, width: 40 }),
+        Bird: Bird(world, 'green', { x: 250, y: 600 }, { height: 80, width: 40 }),
 
-        // Floor: Floor(
-        // world,
-        // { x: width / 9, y: height / 2 }, // x quero do lado esquerdo, o y quero começando do topo
-        // { width: 40, height: height+200 }, // altura total, pois meu chão vai ficar nesta posição, com o celular deitado
-        // "brown"
-        // ),
+        Floor: Floor(
+        world,
+        { x: width / 9, y: height / 2 }, // x quero do lado esquerdo, o y quero começando do topo
+        { width: 40, height: height+200 }, // altura total, pois meu chão vai ficar nesta posição, com o celular deitado
+        "brown"
+        ),
     }
 }

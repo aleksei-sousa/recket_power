@@ -1,34 +1,44 @@
+import React, { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { GameEngine } from "react-native-game-engine";
-import { useEffect, useState, useRef } from "react";
 import Matter from "matter-js";
 
 import entities from "@/entities/index";
-import Physics from "@/src/physics/physics";
-import JoystickVertical from "@/components/Input"; // import
+import JoystickVertical from "@/components/Input";
+import ActionButtons from "@/components/ActionButtons";
 
 export default function Index() {
   const [running, setRunning] = useState(false);
-
-  // 🔑 Usa useRef para manter as entidades persistentes
   const entitiesRef = useRef(entities());
+  const joystickValue = useRef(0); // valor atual do joystick
 
   useEffect(() => {
     setRunning(true);
   }, []);
 
+  // Physics system
+  const Physics = (entities, { time }) => {
+    const bird = entities.Bird?.body;
+    if (bird) {
+      const speed = 0.012;
+      Matter.Body.applyForce(bird, bird.position, {
+        x: 0,
+        y: joystickValue.current * speed,
+      });
+      Matter.Body.set(bird, {
+  frictionAir: 0.2 // quanto maior, mais rápido ele para
+});
+    }
+
+    Matter.Engine.update(entities.physics.engine, time.delta);
+    return entities;
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <GameEngine
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0,
-        }}
-        entities={entitiesRef.current} // sempre a mesma instância
+        style={{ flex: 1 }}
+        entities={entitiesRef.current}
         systems={[Physics]}
         running={running}
       />
@@ -36,27 +46,17 @@ export default function Index() {
       <JoystickVertical
         style={{ position: "absolute", top: 50, left: 50 }}
         onMove={(value) => {
-          const bird = entitiesRef.current.Bird?.body;
-          if (!bird) return console.log("bird não existe");
-
-          const speed = 5; // ajusta a sensibilidade
-          console.log("move1", value);
-
-          Matter.Body.setVelocity(bird, {
-            x: 0,
-            y: value * speed, // sobe/desce
-          });
+          joystickValue.current = value; // atualiza valor do joystick
         }}
         onRelease={() => {
-          const bird = entitiesRef.current.Bird?.body;
-          if (!bird) return console.log("bird não existe");
-
-          console.log("move2");
-          Matter.Body.setVelocity(bird, { x: 0, y: 0 });
+          joystickValue.current = 0; // zera ao soltar
         }}
       />
+      {/* <ActionButtons
+        onA={() => console.log("Botão A")}
+        onB={() => console.log("Botão B")}
+      /> */}
 
-      <StatusBar style="auto" hidden={true} />
     </View>
   );
 }
